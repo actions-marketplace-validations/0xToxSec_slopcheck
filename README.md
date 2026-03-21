@@ -12,6 +12,18 @@ When your AI coding assistant suggests `flask-gpt-helper` or `easy-requests`, th
 pip install slopcheck
 ```
 
+Or one-liner if you're in a hurry:
+
+**Mac/Linux:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/0xToxSec/slopcheck/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/0xToxSec/slopcheck/main/install.ps1 | iex
+```
+
 ## Usage
 
 ### Scan your project
