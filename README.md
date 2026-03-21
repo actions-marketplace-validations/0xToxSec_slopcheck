@@ -1,0 +1,98 @@
+# slopcheck
+
+Detect AI-hallucinated packages before you install them.
+
+When your AI coding assistant suggests `flask-gpt-helper` or `easy-requests`, those packages probably don't exist. But someone might register them as malware before you notice. That's [slopsquatting](https://blog.sethlarson.dev/slopsquatting).
+
+**slopcheck** catches it first.
+
+## Install
+
+```bash
+pip install slopcheck
+```
+
+## Usage
+
+### Scan your project
+
+```bash
+# Auto-detect dependency files in current directory
+slopcheck .
+
+# Scan a specific file
+slopcheck requirements.txt
+```
+
+### Check a single package
+
+```bash
+slopcheck flask-gpt-helper --pkg pypi
+slopcheck react-ai-utils --pkg npm
+slopcheck easy-http --pkg crates.io
+slopcheck github.com/fake/module --pkg go
+```
+
+### Output
+
+```
+  [SLOP] flask-gpt-helper (pypi)
+    > Package 'flask-gpt-helper' does not exist on pypi. Your AI made it up.
+    > Name ends with '-helper' -- classic LLM naming pattern
+
+  [SLOP] reqeusts (pypi)
+    > Package 'reqeusts' does not exist on pypi. Your AI made it up.
+    ? Did you mean: requests
+
+  [SUS] easy-requests (pypi)
+    > Name starts with 'easy-' -- classic LLM naming pattern. Package exists but the name screams 'LLM bait'.
+
+  [OK] requests (pypi)
+```
+
+### JSON output (for CI)
+
+```bash
+slopcheck requirements.txt --json
+```
+
+## What it detects
+
+- **Non-existent packages** -- the #1 signal. If it's not on the registry, your AI made it up.
+- **Brand new packages** -- created in the last 7 days? Probably registered to trap you.
+- **Low downloads** -- under 100 downloads means nobody uses it.
+- **Hallucination patterns** -- LLMs love naming packages `{popular-lib}-{ai|gpt|helper|utils}`. We check for these patterns.
+- **Typosquats** -- Levenshtein distance check against popular packages with "did you mean?" suggestions.
+- **Missing repo links** -- legitimate packages almost always link to source code.
+
+## Supported ecosystems
+
+| Ecosystem | Dependency files | Registry |
+|-----------|-----------------|----------|
+| PyPI | `requirements.txt`, `pyproject.toml` | pypi.org |
+| npm | `package.json` | npmjs.org |
+| crates.io | `Cargo.toml` | crates.io |
+| Go | `go.mod` | proxy.golang.org |
+
+## Exit codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Clean -- all packages check out |
+| 1 | Suspicious -- some packages deserve a second look |
+| 2 | Slop detected -- hallucinated or dangerously new packages found |
+
+## Options
+
+```
+slopcheck [target] [options]
+
+target          Directory, file, or package name (default: .)
+--pkg ECOSYSTEM Check single package (pypi, npm, crates.io, go)
+--workers N     Parallel registry checks (default: 10)
+--json          JSON output for CI pipelines
+```
+
+## License
+
+MIT
