@@ -152,7 +152,7 @@ def check_npm(name: str) -> PackageInfo:
 def check_crates(name: str) -> PackageInfo:
     """Hit crates.io API."""
     url = f"https://crates.io/api/v1/crates/{name}"
-    headers = {"User-Agent": "slopcheck/0.3 (supply-chain-safety)"}
+    headers = {"User-Agent": "slopcheck/0.4 (supply-chain-safety)"}
     try:
         r = requests.get(url, headers=headers, timeout=TIMEOUT)
         if r.status_code == 404:
